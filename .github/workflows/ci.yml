@@ -1,0 +1,90 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/talk-booking:cicd-python3.11-slim
+
+jobs:
+  build-python-image:
+    if: github.event_name == 'push' && contains(github.event.head_commit.modified_files, 'ci_cd/python/Dockerfile')
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build and push Docker image
+        run: |
+          cd ci_cd/python/
+          docker build -t ${{ env.DOCKER_IMAGE }} .
+          docker push ${{ env.DOCKER_IMAGE }}
+
+  code-quality:
+    needs: build-python-image
+    if: |
+      github.event_name == 'pull_request' || 
+      contains(github.event.head_commit.modified_files, 'services/talk_booking/')
+    runs-on: ubuntu-latest
+    container: ${{ env.DOCKER_IMAGE }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            services/talk_booking/.venv
+            services/talk_booking/poetry.lock
+          key: ${{ runner.os }}-poetry-${{ hashFiles('services/talk_booking/poetry.lock') }}
+      - name: Set up Poetry
+        run: |
+          cd services/talk_booking/
+          poetry install
+      - name: Run code quality checks
+        run: |
+          cd services/talk_booking/
+          poetry run flake8 .
+          poetry run black . --check
+          poetry run isort . --check-only --profile black
+          poetry run bandit .
+          poetry run safety check
+
+  tests:
+    needs: [build-python-image, code-quality]
+    if: |
+      github.event_name == 'pull_request' || 
+      contains(github.event.head_commit.modified_files, 'services/talk_booking/')
+    runs-on: ubuntu-latest
+    container: ${{ env.DOCKER_IMAGE }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            services/talk_booking/.venv
+            services/talk_booking/poetry.lock
+          key: ${{ runner.os }}-poetry-${{ hashFiles('services/talk_booking/poetry.lock') }}
+      - name: Set up Poetry
+        run: |
+          cd services/talk_booking/
+          poetry install
+      - name: Run tests with coverage
+        run: |
+          cd services/talk_booking/
+          poetry run pytest --junitxml=report.xml --cov=./ --cov-report=xml tests/unit tests/integration
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./services/talk_booking/coverage.xml
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: ./services/talk_booking/report.xml
