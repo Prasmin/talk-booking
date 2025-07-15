@@ -6,15 +6,14 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/talk-booking:cicd-python3.11-slim
-
 jobs:
   build-python-image:
     if: github.event_name == 'push' && contains(github.event.head_commit.modified_files, 'ci_cd/python/Dockerfile')
     runs-on: ubuntu-latest
     permissions:
       packages: write
+    env:
+      DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/talk-booking:cicd-python3.11-slim
     steps:
       - uses: actions/checkout@v4
       - name: Log in to GitHub Container Registry
@@ -31,6 +30,8 @@ jobs:
       github.event_name == 'pull_request' || 
       contains(github.event.head_commit.modified_files, 'services/talk_booking/')
     runs-on: ubuntu-latest
+    env:
+      DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/talk-booking:cicd-python3.11-slim
     container: ${{ env.DOCKER_IMAGE }}
     steps:
       - uses: actions/checkout@v4
@@ -60,6 +61,8 @@ jobs:
       github.event_name == 'pull_request' || 
       contains(github.event.head_commit.modified_files, 'services/talk_booking/')
     runs-on: ubuntu-latest
+    env:
+      DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/talk-booking:cicd-python3.11-slim
     container: ${{ env.DOCKER_IMAGE }}
     steps:
       - uses: actions/checkout@v4
