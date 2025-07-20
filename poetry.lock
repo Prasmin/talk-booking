@@ -27,6 +27,7 @@ files = [
 [package.dependencies]
 idna = ">=2.8"
 sniffio = ">=1.1"
+typing_extensions = {version = ">=4.5", markers = "python_version < \"3.13\""}
 
 [package.extras]
 doc = ["Sphinx (>=8.2,<9.0)", "packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphinx_rtd_theme"]
@@ -1008,7 +1009,10 @@ files = [
 [package.dependencies]
 annotated-types = ">=0.6.0"
 pydantic-core = "2.23.4"
-typing-extensions = {version = ">=4.12.2", markers = "python_version >= \"3.13\""}
+typing-extensions = [
+    {version = ">=4.12.2", markers = "python_version >= \"3.13\""},
+    {version = ">=4.6.1", markers = "python_version < \"3.13\""},
+]
 
 [package.extras]
 email = ["email-validator (>=2.0.0)"]
@@ -1419,7 +1423,7 @@ description = "C version of reader, parser and emitter for ruamel.yaml derived f
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
-markers = "platform_python_implementation == \"CPython\" and python_version == \"3.13\""
+markers = "platform_python_implementation == \"CPython\""
 files = [
     {file = "ruamel.yaml.clib-0.2.12-cp310-cp310-macosx_13_0_arm64.whl", hash = "sha256:11f891336688faf5156a36293a9c362bdc7c88f03a8a027c2c1d8e0bcde998e5"},
     {file = "ruamel.yaml.clib-0.2.12-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:a606ef75a60ecf3d924613892cc603b154178ee25abb3055db5062da811fd969"},
@@ -1723,5 +1727,5 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.13"
-content-hash = "cf2b7488b7e2312bdc0754583ec132483e759954b030de430245e8ebf79ce911"
+python-versions = ">=3.11,<3.14"
+content-hash = "ac32a5ad095b6f2967f7ebbce8b35f318cae5d684d67d1d47b6ebf3a1cec93fb"
