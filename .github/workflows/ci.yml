@@ -1,0 +1,22 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+    branches: [main]
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u prasmin --password-stdin
+
+      - name: Build and push image
+        run: |
+          docker build -f ci_cd/python/Dockerfile -t ghcr.io/prasmin/talk-booking-ghcr:latest .
+          docker push ghcr.io/prasmin/talk-booking-ghcr:latest
