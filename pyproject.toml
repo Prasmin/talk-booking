@@ -10,7 +10,7 @@ packages = [
 
 
 [tool.poetry.dependencies]
-python = ">=3.13"
+python = ">=3.11,<3.13"
 fastapi = ">=0.116.0,<0.117.0"
 uvicorn = ">=0.35.0,<0.36.0"
 httpx = ">=0.28.1,<0.29.0"
