@@ -24,8 +24,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 COPY --chown=github:github pyproject.toml poetry.lock* ./
+COPY --chown=github:github . .
 RUN poetry install --no-interaction --no-ansi --only main
 
-COPY --chown=github:github . .
 
 CMD ["poetry", "run", "uvicorn", "web_app.main:app", "--host", "0.0.0.0", "--port", "8000"]
